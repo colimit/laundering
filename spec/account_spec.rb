@@ -34,6 +34,15 @@ describe Account do
       expect(@account.balance).to eq(50)
     end
     
+    it "overcharging results in an overcharge error" do
+      @account.credit("A", 100)
+      expect { @account.withdraw("A", 200) }.to raise_error("overcharge")
+    end
+    
+  end
+  
+  describe "anti-laundering protection" do
+    
   end
   
   
