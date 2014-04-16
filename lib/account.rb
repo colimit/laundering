@@ -1,44 +1,113 @@
 
 class Account
-  attr_reader :balance
   
   def initialize
-    @balance = 0
-    @withdraw_constraints = Hash.new(0)
-    @unrestricted_amount = 0
+    #contains constraints of the form ["A", "B", "C"] => 100, which represents
+    #a constraint X_A + X_B + X_C <= 100, where X_A is an amount of restricted 
+    #funds to be withdrawn to account A. This particular constraint,
+    # means that 100 dollars is the maximum amount that can be withdrawn to 
+    #these accounts without violating the laundering rule.
+    @withdraw_constraints = {[] => 0}
+    #the set of accounts is expected to be small so it is stored as an array
+    @accounts = []
   end
 
-  def credit(account, amount)
-    @balance += amount
-    @withdraw_constraints[account] += amount
+  def deposit(account, amount)
+    update_constraints(account, amount)
+  end
+  
+  def balance
+    @withdraw_constraints[@accounts]
   end
   
   #invests money from an account
   def invest(amount)
-    if amount > @balance
+    if amount > balance
       raise "overcharge"
     else
-      @balance -= amount
+      new_constraints = {}
+      account_subsets.each do |subset|
+        complement = @accounts - subset
+        #min_from_this is the number of dollars such that, if you wanted to 
+        #withdraw amount dollars from your account, you would be forced to
+        #withdraw at least min_from_this dollars to accounts in subset.
+        #Alternatively, it may be thought of as the dollars that must be
+        #considered to come from restricted funds from accounts in subset when
+        #executing the invest action for amount
+        min_from_this = [amount - @withdraw_constraints[complement], 0].max
+        #if part of the investment must come from accounts in subset,
+        #the withdraw constraint for this subset must be lowered by that number 
+        new_constraints[subset] = @withdraw_constraints[subset] - min_from_this
+      end
+      @withdraw_constraints = new_constraints
+      normalize_constraints
     end
   end
 
   def withdraw(account, amount)
-    if amount > @balance
+    if amount > balance
       raise "overcharge"
-    elsif amount > @withdraw_constraints[account] + @unrestricted_amount
-      raise "charge violates anti-laundering contraint"
+    elsif amount > @withdraw_constraints[[account]] 
+      raise "withdrawl violates anti-laundering constraint"
     else
-      leftover_constraint = @withdraw_constraints[account] - amount
-      @withdraw_constraints[account] = [leftover_constraint, 0].max
-      @unrestricted_amount += leftover_constraint if leftover_constraint < 0
-      @balance -= amount
+      update_constraints(account, -1 * amount)
+      normalize_constraints
     end
   end
   
-  #returns money to an account from an investment
-  def return(amount)
-    @balance += amount
-    @unrestricted_amount += amount
+  private
+  
+  
+  #fixes constraints so that the constraint for a subset takes into account 
+  #constraints on its supersets 
+  def normalize_constraints
+    account_subsets.each do |subset|
+      @withdraw_constraints[subset] = normalized_constraint(subset)
+    end
+  end
+  
+  #returns the largest total amount that can currently be withdrawn
+  #to accounts in subset without touching unrestricted funds
+  def normalized_constraint(subset = @accounts)
+    smallest = Float::INFINITY 
+    account_subsets(subset).each do |accounts|
+      smallest = [smallest, @withdraw_constraints[accounts]].min
+    end
+    smallest
+  end
+  
+
+  #deposits (for positive amount) or withdraws (for negative amount)
+  #from account's funds, updating all laundering constraints containing
+  #account
+  def update_constraints(account, amount)
+    add_account(account) unless @accounts.include?(account)
+    account_subsets([account]).each do |subset|
+      @withdraw_constraints[subset] += amount
+    end
+  end
+
+  #returns array of all subsets containing all accounts in accounts. 
+  #if accounts is not given, returns all subsets.
+  def account_subsets(accounts = [])
+    other_accounts = @accounts - accounts
+    (0..other_accounts.length).flat_map do |size|
+      other_accounts.combination(size).map do |others|
+        (others + accounts).sort
+      end
+    end
+  end
+  
+  #adds account with no deposit
+  def add_account(account)
+    @accounts << account
+    @accounts.sort!
+    account_subsets([account]).each do |subset|
+      #the new limit for each subset containing the new account is the same as 
+      #the previous limit for subset excluding the new account
+      subset_limit = @withdraw_constraints[subset - [account]]
+      @withdraw_constraints[subset] = subset_limit
+    end
   end
 
 end
