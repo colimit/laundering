@@ -43,8 +43,9 @@ If you wanted to show the algorithm does work, you would do it by showing that t
 is preserved by each account operation (deposit, invest, withdraw).
 
 Hazards: this requires 2**(number of accounts) constraints, and so this can
-only be done for a fairly small number of accounts,
-I would think that 10 accounts could be maintained, which seems like a fairly 
-reasonable number. Deleting accounts (or dealing with the possiblility that a 
-customer closes their bank account) is a little problematic, in that it leaves
-money in the account that cannot be withdrawn.
+only be done for a fairly small number of accounts. With optimization of the 
+renormalize_constraints method, I would think that 10 accounts could be
+maintained, which seems like a fairly reasonable number. Deleting accounts (or
+dealing with the possiblility that a customer closes their bank account) is a
+little problematic, in that it leaves money in the account that cannot be
+ withdrawn.

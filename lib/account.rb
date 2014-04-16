@@ -14,6 +14,7 @@ class Account
 
   def deposit(account, amount)
     update_constraints(account, amount)
+    normalize_constraints
   end
   
   def balance
