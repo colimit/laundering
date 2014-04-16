@@ -1,11 +1,12 @@
+
 class Account
   
   def initialize
     #contains constraints of the form ["A", "B", "C"] => 100, which represents
     #a constraint X_A + X_B + X_C <= 100, where X_A is an amount of restricted 
     #funds to be withdrawn to account A. This particular constraint,
-    # means that withdrawing more than 100 dollars to 
-    #these accounts would violate the laundering rule.
+    # means that 100 dollars is the maximum amount that can be withdrawn to 
+    #these accounts without violating the laundering rule.
     @withdraw_constraints = {[] => 0}
     #the set of accounts is expected to be small so it is stored as an array
     @accounts = []
@@ -25,27 +26,37 @@ class Account
       raise "overcharge"
     else
       @withdraw_constraints[@accounts] -= amount
+      normalize_constraints
     end
   end
 
   def withdraw(account, amount)
     if amount > balance
       raise "overcharge"
-    elsif amount > max_withdraw(account)
+    elsif amount > @withdraw_constraints[[account]] 
       raise "withdrawl violates anti-laundering constraint"
     else
       update_constraints(account, -1 * amount)
+      normalize_constraints
     end
   end
   
   private
   
-
+  
+  #fixes constraints so that the constraint for a subset takes into account 
+  #constraints on its supersets 
+  def normalize_constraints
+    account_subsets.each do |subset|
+      @withdraw_constraints[subset] = normalized_constraint(subset)
+    end
+  end
+  
   #returns the largest total amount that can currently be withdrawn
-  #to account 
-  def max_withdraw(account)
+  #to accounts in subset without touching unrestricted funds
+  def normalized_constraint(subset = @accounts)
     smallest = Float::INFINITY 
-    account_subsets([account]).each do |accounts|
+    account_subsets(subset).each do |accounts|
       smallest = [smallest, @withdraw_constraints[accounts]].min
     end
     smallest
@@ -54,7 +65,7 @@ class Account
 
   #deposits (for positive amount) or withdraws (for negative amount)
   #from account's funds, updating all laundering constraints containing
-  #account by amount
+  #account
   def update_constraints(account, amount)
     add_account(account) unless @accounts.include?(account)
     account_subsets([account]).each do |subset|

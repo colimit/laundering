@@ -99,6 +99,15 @@ describe Account do
       expect { @account.withdraw("B",20) }.to raise_error(LAUNDERING)
     end
     
+    it "handles another case" do
+      @account.deposit("A", 100)
+      @account.deposit("B", 100)
+      @account.deposit("C", 1)
+      @account.invest(201)
+      @account.deposit("B", 100)
+      expect { @account.withdraw("C",1) }.to raise_error(LAUNDERING)
+    end
+    
     
     
     
