@@ -1,4 +1,6 @@
-The problem: you have a holding account with deposits from different bank
+The problem: 
+
+you have a holding account with deposits from different bank
 accounts. The holding account can invest (effectively spend) money, or money
 can be withdrawn to a bank account. The bank account must be maintained in a 
 state such that it is possible to attribute each dollar of investment to a 
