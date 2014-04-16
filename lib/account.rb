@@ -63,7 +63,7 @@ class Account
 
   #deposits (for positive amount) or withdraws (for negative amount)
   #from account's funds, updating all laundering constraints containing
-  #account
+  #account by amount
   def update_constraints(account, amount)
     add_account(account) unless @accounts.include?(account)
     account_subsets([account]).each do |subset|
