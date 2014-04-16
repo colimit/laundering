@@ -29,10 +29,9 @@ class Account
   end
 
   def withdraw(account, amount)
-    normalize_constraints
     if amount > balance
       raise "overcharge"
-    elsif amount > @withdraw_constraints[[account]] 
+    elsif amount > max_withdraw([account])
       raise "withdrawl violates anti-laundering constraint"
     else
       update_constraints(account, -1 * amount)
@@ -41,18 +40,10 @@ class Account
   
   private
   
-  
-  #fixes constraints so that the constraint for a subset takes into account 
-  #constraints on its supersets 
-  def normalize_constraints
-    account_subsets.each do |subset|
-      @withdraw_constraints[subset] = normalized_constraint(subset)
-    end
-  end
-  
+
   #returns the largest total amount that can currently be withdrawn
   #to accounts in subset without touching unrestricted funds
-  def normalized_constraint(subset = @accounts)
+  def max_withdraw(subset = @accounts)
     smallest = Float::INFINITY 
     account_subsets(subset).each do |accounts|
       smallest = [smallest, @withdraw_constraints[accounts]].min

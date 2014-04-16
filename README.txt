@@ -38,9 +38,8 @@ does work, you would do it by showing that this key property of the constraints
 is preserved by each account operation (deposit, invest, withdraw).
 
 Hazards: this requires 2**(number of accounts) constraints, and so this can
-only be done for a fairly small number of accounts. If the normalize_constraints
-method were optimized to use a better algorithm, I would think that 10 accounts
-could be maintained, which seems like a fairly reasonable number. 
-Deleting accounts (or dealing with the possiblility that a customer closes 
-their bank account) is a little problematic, in that it leaves
+only be done for a fairly small number of accounts,
+I would think that 10 accounts could be maintained, which seems like a fairly 
+reasonable number. Deleting accounts (or dealing with the possiblility that a 
+customer closes their bank account) is a little problematic, in that it leaves
 money in the account that cannot be withdrawn.
