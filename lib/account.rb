@@ -1,12 +1,11 @@
-
 class Account
   
   def initialize
     #contains constraints of the form ["A", "B", "C"] => 100, which represents
     #a constraint X_A + X_B + X_C <= 100, where X_A is an amount of restricted 
     #funds to be withdrawn to account A. This particular constraint,
-    # means that 100 dollars is the maximum amount that can be withdrawn to 
-    #these accounts without violating the laundering rule.
+    # means that withdrawing more than 100 dollars to 
+    #these accounts would violate the laundering rule.
     @withdraw_constraints = {[] => 0}
     #the set of accounts is expected to be small so it is stored as an array
     @accounts = []
