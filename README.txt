@@ -29,12 +29,17 @@ Approach: maintain a constraint for each subset of the set of accounts. These
 constraints represent the total amount that can be withdrawn to a subset of 
 accounts. Each operation updates all constraints. 
 
-The key property of the constraints is that at each step, a set of withdrawls
-is possible if and only if it meets all the constraints. For instance, if you
-want to withdraw 50 from A and 100 from B, this is possible if and only if
-@withdraw_constraints[["A"]] >=50, @withdraw_constraints[["B"]] >= 100, and
-@withdraw_constraints[["A","B"]] >=150. If you wanted to show the algorithm
-does work, you would do it by showing that this key property of the constraints
+The key propertis of the constraints are that at each step, 
+
+a set of withdrawls is possible if and only if it meets all the constraints. 
+
+For instance, if you want to withdraw 50 from A and 100 from B, this is 
+possible if and only if @withdraw_constraints[["A"]] >=50, 
+@withdraw_constraints[["B"]] >= 100, and @withdraw_constraints[["A","B"]] 
+>=150. 
+
+
+If you wanted to show the algorithm does work, you would do it by showing that this key property of the constraints
 is preserved by each account operation (deposit, invest, withdraw).
 
 Hazards: this requires 2**(number of accounts) constraints, and so this can
