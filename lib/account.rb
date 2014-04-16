@@ -25,33 +25,18 @@ class Account
     if amount > balance
       raise "overcharge"
     else
-      new_constraints = {}
-      account_subsets.each do |subset|
-        complement = @accounts - subset
-        #min_from_this is the number of dollars such that, if you wanted to 
-        #withdraw amount dollars from your account, you would be forced to
-        #withdraw at least min_from_this dollars to accounts in subset.
-        #Alternatively, it may be thought of as the dollars that must be
-        #considered to come from restricted funds from accounts in subset when
-        #executing the invest action for amount
-        min_from_this = [amount - @withdraw_constraints[complement], 0].max
-        #if part of the investment must come from accounts in subset,
-        #the withdraw constraint for this subset must be lowered by that number 
-        new_constraints[subset] = @withdraw_constraints[subset] - min_from_this
-      end
-      @withdraw_constraints = new_constraints
-      normalize_constraints
+      @withdraw_constraints[@accounts] -= amount
     end
   end
 
   def withdraw(account, amount)
+    normalize_constraints
     if amount > balance
       raise "overcharge"
     elsif amount > @withdraw_constraints[[account]] 
       raise "withdrawl violates anti-laundering constraint"
     else
       update_constraints(account, -1 * amount)
-      normalize_constraints
     end
   end
   
